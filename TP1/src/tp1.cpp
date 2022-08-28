@@ -1,39 +1,7 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include "matrix.h"
+#include "matrix.cpp"
+#include <assert.h>
 using namespace std;
 
-
-Matrix<double> read_test(string path, float p){
-        // Read file as stream
-        ifstream stream(path);
-        // Use line as buffer
-        string line;
-
-        // First line is n,
-        // number of pages.
-        getline(stream, line);
-        int n = stoi(line);
-
-        // Second line is m, number
-        // of links.
-        getline(stream, line);
-        int m = stoi(line);
-
-        Matrix<double> A(n, m);
-        for(int k = 1; k <= m; k++){
-            getline(stream, line);
-            int split = line.find(" ");
-            string fst = line.substr(0, split);
-            string snd = line.substr(split);
-            int i = stod(fst);
-            int j = stod(snd);
-            A.set(i, j, 1);
-        }
-        return A;
-}
 int main(int argc, char *argv[]) {
     if(argc != 3){
         cout << "Numero incorrecto de argumentos" << endl;
@@ -41,7 +9,28 @@ int main(int argc, char *argv[]) {
     }
     string file_path = argv[1];
     float p_value = atof(argv[2]);
-    cout << "Reading file: " << (file_path) << endl << "P: " << p_value << endl;
-    read_test(file_path, p_value);
+    cout << "Leyendo: " << (file_path) << endl << "P: " << p_value << endl;
+    auto W = file_to_W_matrix(file_path, p_value);
+    auto D = W_to_D_matrix(W);
+    W.print();
+    D.print();
+    auto product = Matrix_mul_diag(W, D);
+    product.print();
+    product.times_scalar(p_value);
+    product.print();
+    int n = product.N;
+    Matrix<double> id = identity(n);
+    Matrix<double> result = sub(id, product);
+    result.print();
+    result.extend_with_ones();
+    result.print();
+    result.gaussian_form();
+    result.print();
+    vector<double> solution = get_solution(result);
+    for(auto num : solution)
+        cout << num << endl;
+    // C.print();
+    // W.gaussian_form();
+    // W.print();
     return 0;
 }
