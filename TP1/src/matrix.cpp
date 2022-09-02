@@ -125,7 +125,7 @@ vector<double> get_solution(Matrix<double> A){
 double vector_norm(vector<double> &V) {
     double value = 0;
     for(double v: V) {
-        value += pow(2, v);
+        value += pow(v, 2);
     }
     return sqrt(value);
 }
@@ -134,7 +134,7 @@ vector<double> normalize(vector<double> solution) {
 
     double norm = vector_norm(solution);
     for(int i = 0; i<solution.size(); i++){
-        solution[i] = solution[i]/norm;
+        solution[i] = pow((solution[i]/norm), 2);
     }
     return solution;
 }
