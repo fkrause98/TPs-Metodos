@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include "matrix.h"
+#include<cmath>
 
 Matrix<double> file_to_W_matrix(string path, float p){
         // Read file as stream
@@ -119,4 +120,21 @@ vector<double> get_solution(Matrix<double> A){
         result[i] = numerator / A[i][i];
     }
     return result;
+}
+
+double vector_norm(vector<double> &V) {
+    double value = 0;
+    for(double v: V) {
+        value += pow(2, v);
+    }
+    return sqrt(value);
+}
+
+vector<double> normalize(vector<double> solution) {
+
+    double norm = vector_norm(solution);
+    for(int i = 0; i<solution.size(); i++){
+        solution[i] = solution[i]/norm;
+    }
+    return solution;
 }

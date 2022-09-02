@@ -29,6 +29,11 @@ int main(int argc, char *argv[]) {
     vector<double> solution = get_solution(result);
     for(auto num : solution)
         cout << num << endl;
+    
+    vector<double> normalized_solution = normalize(solution);
+    
+    for(auto num : normalized_solution)
+        cout << num << endl;
     // C.print();
     // W.gaussian_form();
     // W.print();
