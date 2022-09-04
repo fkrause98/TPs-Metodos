@@ -1,5 +1,6 @@
 import os, subprocess
 import numpy as np
+import time
 from scipy.sparse import coo_matrix
 from typing import List
 
@@ -58,8 +59,15 @@ class Test:
        tp_bin: str = os.getcwd() + "/src/tp1"
        bin_process = subprocess.run([tp_bin, self.test_path, str(p)], input=self.to_input(), capture_output=True, text=True)
        output = bin_process.stdout
-       output_as_floats = [float(num) for num in output.split('\n') if num]
-       return output_as_floats
+       return [float(x) for x in output.split('\n') if x != '']
+
+    def time_it_cpp(self):
+        p, _ = self.solution_file()
+        start = time.time()
+        output = self.solve_with_cpp(p)
+        end = time.time()
+        print(f"Time elapsed for {self.test_path}: {end-start}")
+        return output
 
     def solution_file(self):
        with open(self.test_path + ".out") as out:
@@ -80,8 +88,15 @@ def page_rank(test_path: str, test_name: str, p: float):
        bin_process = subprocess.run([tp_bin, test_path, str(p)], input=test.to_input(), capture_output=True, text=True)
        output = bin_process.stdout
        return output
-
-def page_rank_python(test_path: str, test_name: str, p: float):
-       test: Test = read_test(test_path, test_name)
-       matrix = np.array([])
-       return test
+def time_each():
+    tests_path = os.getcwd() + "/tests"
+    files = os.listdir(tests_path)
+    files.remove('tp1.pdf')
+    files.remove('README.txt')
+    files.remove('test_nuestro.txt')
+    files = [file for file in files if file.endswith(".txt")]
+    for file in files:
+        test = read_test(tests_path + "/" + file, file)
+        output = test.time_it_cpp()
+        print(output)
+    return None
