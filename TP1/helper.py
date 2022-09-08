@@ -51,9 +51,8 @@ class Test:
         Id = np.identity(n)
         final_matrix = (Id - (p*WD))
         solution = np.linalg.solve(final_matrix, np.ones(n))
-        normalized_solution = solution / np.sqrt(np.sum(solution**2))
-        answer = [v**2 for v in normalized_solution]
-        return answer
+        normalized_solution = solution / np.sum(solution)
+        return normalized_solution
 
     def solve_with_cpp(self, p: float):
        tp_bin: str = os.getcwd() + "/src/tp1"
