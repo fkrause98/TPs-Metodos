@@ -76,9 +76,9 @@ int main(int argc, char *argv[]) {
     //  OUTPUT
     // =========
    ofstream outdata;
-   outdata.open("archive.out");
+   outdata.open(file_path + ".out");
    if (!outdata) {
-       cerr << "Error: file couldn't be opened" << endl;
+       cerr << "No pude abrir el archivo de salida" << endl;
        exit(1);
    }
     outdata << p_value << endl; 
