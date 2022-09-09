@@ -23,7 +23,7 @@ struct Matrix {
     Matrix(int N, int M){
         this->N = N;
         this->M = M;
-        for(int i = 0; i <= N; i++)
+        for(int i = 0; i < N; i++)
             values[i] = {};
     }
     Matrix(int N, int M, vector<vector<Num>> vec_matrix){
@@ -43,12 +43,9 @@ struct Matrix {
         return values[row];
     }
     void set(int i, int j, Num value){
-        // cout << "Received value: " << value << endl;
-        if(i > this->N || j > this->N || is_zero(value)){
+        if(i >= this->N || j >= this->N || is_zero(value)){
             return;
         }
-        // if(i > this->N || j > this->N)
-        //     return;
         this->values[i][j] = value;
     }
     void swap_rows(int row1, int row2){
@@ -60,16 +57,12 @@ struct Matrix {
     void gaussian_form() {
       auto n = this->N;
       for (int i = 0; i < (n - 1); i++) {
-        // cout << "i: " << i << endl;
         if (!(is_zero(this->values[i][i]))) {
-        // if (abs(this->values[i][i]) > epsilon) {
           for (int j = i + 1; j < n; j++) {
             if (!(is_zero(this->values[j][i]))) {
               Num m = (this->values[j][i]) / (this->values[i][i]);
-              // cout << "m: " << m << endl;
               for (int k = i; k <= n; k++) {
                   Num res = this->values[j][k] - (m * (this->values[i][k]));
-                  // cout << "res: " << res << endl;
                   this->set(j,k, res);
               }
             }
@@ -95,10 +88,8 @@ struct Matrix {
           for (int j = i - 1; j >= 0; j--) {
             if (!is_zero(this->values[j][i])) {
               Num m = (this->values[j][i]) / (this->values[i][i]);
-              // cout << "m: " << m << endl;
               for (int k = n; k > i; k--) {
                   Num res = this->values[j][k] - (m * (this->values[i][k]));
-                  // cout << "res: " << res << endl;
                   this->set(j, k, res);
               }
             }
