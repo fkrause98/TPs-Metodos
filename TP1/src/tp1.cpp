@@ -2,7 +2,9 @@
 #include <assert.h>
 #include <chrono>
 #include <utility>
+#include <fstream>
 using namespace std;
+using std::ofstream;
 
 typedef std::chrono::high_resolution_clock::time_point TimeVar;
 #define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
@@ -64,10 +66,26 @@ int main(int argc, char *argv[]) {
 
     vector<double> normalized_solution = normalize(solution);
 
-    for(auto num : normalized_solution)
-        cout << num << endl;
+    // for(auto num : normalized_solution)
+    //     cout << num << endl;
     // C.print();
     // W.gaussian_form();
     //W.print();
+
+    // =========
+    //  OUTPUT
+    // =========
+   ofstream outdata;
+   outdata.open("archive.out");
+   if (!outdata) {
+       cerr << "Error: file couldn't be opened" << endl;
+       exit(1);
+   }
+    outdata << p_value << endl; 
+    for (double d: normalized_solution) 
+        outdata << d << endl;
+    
+    outdata.close();
+
     return 0;
 }
