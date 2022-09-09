@@ -7,9 +7,9 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-double epsilon = 1e-4;
 template <typename Num>
 bool is_zero(Num x){
+   double epsilon = 1e-4;
    return (abs(x) < epsilon);
 }
 template <typename Num>
@@ -25,19 +25,6 @@ struct Matrix {
         this->M = M;
         for(int i = 0; i < N; i++)
             values[i] = {};
-    }
-    Matrix(int N, int M, vector<vector<Num>> vec_matrix){
-        this->N = N;
-        this->M = M;
-        for(int i = 0; i <= N; i++)
-            values[i] = {};
-
-        for(int i = 0; i < vec_matrix.size(); i++){
-            auto row = vec_matrix[i];
-            for(int j = 0; j < row.size(); j++){
-                this->set(i, j, vec_matrix[i][j]);
-            }
-        }
     }
     unordered_map<int, Num> operator[](int row){
         return values[row];
@@ -101,7 +88,7 @@ struct Matrix {
                 j--;
                 non_zero = !is_zero(this->values[j][i]);
             }
-            if(j != 0){
+            if(j >= 0){
                this->swap_rows(i, j);
                i++;
             }
@@ -146,9 +133,7 @@ struct Matrix {
         } 
     }
 };
-Matrix<double> file_to_W_matrix(string path, float p);
+Matrix<double> file_to_W_matrix(string path);
 Matrix<double> W_to_D_matrix(Matrix <double> W);
-Matrix<double> W_times_D(Matrix<double> W, Matrix<double> D);
-Matrix<double> gauss_test();
 template <typename Num>
 Matrix<Num> Matrix_mul_diag(Matrix<Num> A, Matrix<Num> diagonal);

@@ -5,7 +5,7 @@
 #include "matrix.h"
 #include<cmath>
 
-Matrix<double> file_to_W_matrix(string path, float p){
+Matrix<double> file_to_W_matrix(string path){
         // Read file as stream
         ifstream stream(path);
         // Use line as buffer
@@ -73,22 +73,6 @@ Matrix<double> p_times_Matrix(Matrix<double> A, double p){
     }
     return result;
 }
-Matrix<double> gauss_test(){
-    Matrix<double> A(3, 6);
-    vector<vector<int>> matrix = {{2, 1, 3, 0, 0}, {1, 2, 0, 2, 0}, {0, 2, 1, 1, 0}, {3, 1, 0, 0, 0}};
-    // vector<vector<int>> matrix = {{1, 3, 1}, {1, 1, -1}, {3, 11, 5}};
-    // vector<vector<int>> matrix = {{1, 1, 1}, {1, 0, 0}, {0, 0, 1}};
-    for(int i = 0; i < matrix.size(); i++){
-        auto row = matrix[i];
-        for(int j = 0; j < row.size(); j++){
-            A.set(i, j, matrix[i][j]);
-        }
-    }
-    // A.print();
-    // A.gaussian_form();
-    // A.print();
-    return A;
-}
 Matrix<double> identity(int N){
     Matrix<double> Id(N, N);
     for(int i = 0; i < N; i++)
@@ -110,49 +94,15 @@ Matrix<Num> sub(Matrix<Num> &A, Matrix<Num> &B){
       return result;
 }
 
-#include <chrono>
-typedef std::chrono::high_resolution_clock::time_point TimeVar;
-#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
-#define timeNow() std::chrono::high_resolution_clock::now()
-
-TimeVar start_1;
 vector<double> get_solution(Matrix<double> &A){
     int n = A.N-1;
     vector<double> result(n, 0);
     for(int i = n - 1; i >= 0; i--){
         double numerator = A[i][n];
-        // for(int j = n-2; j>=i; j--){
-        //     if(abs(A[i][j+1]) > 1e-4){
-        //         numerator -= A[i][j+1]*result[j+1];
-        //     }
-        // }
-        // cout << "Time spent result with i = " <<  i << " - "<< duration(timeNow()-start_1) << endl;
-        // start_1 = timeNow();
         result[i] = numerator / A[i][i];
-        // result[i] = A[i][i];
     }
     return result;
 }
-
-/*
-double vector_norm(vector<double> &V) {
-    double value = 0;
-    for(double v: V) {
-        value += pow(v, 2);
-    }
-    return sqrt(value);
-}
-
-vector<double> normalize(vector<double> solution) {
-
-    double norm = vector_norm(solution);
-    for(int i = 0; i<solution.size(); i++){
-        solution[i] = pow((solution[i]/norm), 2);
-    }
-    return solution;
-}
-*/
-
 vector<double> normalize(vector<double> solution) {
 
     double sum = 0;

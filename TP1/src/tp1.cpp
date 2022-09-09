@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     }
     string file_path = argv[1];
     float p_value = atof(argv[2]);
-    auto W = file_to_W_matrix(file_path, p_value);
+    auto W = file_to_W_matrix(file_path);
     auto D = W_to_D_matrix(W);
     auto product = Matrix_mul_diag(W, D);
     product.times_scalar(p_value);
