@@ -30,10 +30,13 @@ struct Matrix {
         return values[row];
     }
     void set(int i, int j, Num value){
-        if(i >= this->N || j >= this->N || is_zero(value)){
-            return;
+        if(i < this->N && j < this->N){
+            if(!is_zero(value)){
+                this->values[i][j] = value;
+            } else {
+                (this->values[i].erase(j));
+            }
         }
-        this->values[i][j] = value;
     }
     void swap_rows(int row1, int row2){
        unordered_map<int, Num> tmp;
@@ -48,7 +51,7 @@ struct Matrix {
           for (int j = i + 1; j < n; j++) {
             if (!(is_zero(this->values[j][i]))) {
               Num m = (this->values[j][i]) / (this->values[i][i]);
-              for (int k = i; k <= n; k++) {
+              for (int k = i; k < n; k++) {
                   Num res = this->values[j][k] - (m * (this->values[i][k]));
                   this->set(j,k, res);
               }
@@ -75,7 +78,7 @@ struct Matrix {
           for (int j = i - 1; j >= 0; j--) {
             if (!is_zero(this->values[j][i])) {
               Num m = (this->values[j][i]) / (this->values[i][i]);
-              for (int k = n; k > i; k--) {
+              for (int k = (n-1); k >= i; k--) {
                   Num res = this->values[j][k] - (m * (this->values[i][k]));
                   this->set(j, k, res);
               }
