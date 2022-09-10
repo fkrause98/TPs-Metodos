@@ -30,13 +30,10 @@ struct Matrix {
         return values[row];
     }
     void set(int i, int j, Num value){
-        if(i < this->N && j < this->N){
-            if(!is_zero(value)){
-                this->values[i][j] = value;
-            } else {
-                (this->values[i].erase(j));
-            }
+        if(i < this->N && j < this->N && !(is_zero(value))){
+            this->values[i][j] = value;
         }
+        return;
     }
     void swap_rows(int row1, int row2){
        unordered_map<int, Num> tmp;
@@ -70,6 +67,7 @@ struct Matrix {
             }
         }
       }
+      this->remove_remaining_zeros();
     }
     void gaussian_upper_form() {
       auto n = this->N;
@@ -97,6 +95,7 @@ struct Matrix {
             }
         }
       }
+      this->remove_remaining_zeros();
     }
     void print() {
       cout << "-----------" << endl;
@@ -135,8 +134,22 @@ struct Matrix {
            this->set(i, n-1, 1);
         } 
     }
+
+    void remove_remaining_zeros(){
+        for(auto it_row = this->values.begin(); it_row != this->values.end(); ++it_row){
+            int index_row = it_row->first;
+            for(auto it_column = it_row->second.begin(); it_column != it_row->second.end(); ++it_column){
+                int index_column = it_column->first;
+                auto maybe_zero = this->values[index_row][index_column];
+                if(is_zero(maybe_zero)){
+                    this->values[index_row].erase(maybe_zero);
+                }
+            }
+        }
+    }
 };
 Matrix<double> file_to_W_matrix(string path);
 Matrix<double> W_to_D_matrix(Matrix <double> W);
 template <typename Num>
 Matrix<Num> Matrix_mul_diag(Matrix<Num> A, Matrix<Num> diagonal);
+
