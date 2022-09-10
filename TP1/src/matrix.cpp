@@ -80,7 +80,7 @@ Matrix<double> identity(int N){
     return Id;
 }
 template<typename Num>
-Matrix<Num> sub(Matrix<Num> &A, Matrix<Num> &B){
+Matrix<Num> sub(Matrix<Num> A, Matrix<Num> B){
       int n = A.N;
       Matrix<Num> result(n, A.M);
       for(int i = 0; i < n; i++){
@@ -94,7 +94,7 @@ Matrix<Num> sub(Matrix<Num> &A, Matrix<Num> &B){
       return result;
 }
 
-vector<double> get_solution(Matrix<double> &A){
+vector<double> get_solution(Matrix<double> A){
     int n = A.N-1;
     vector<double> result(n, 0);
     for(int i = n - 1; i >= 0; i--){
