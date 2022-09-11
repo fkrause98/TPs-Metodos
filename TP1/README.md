@@ -24,3 +24,22 @@ $ cat $HOME/TP1/tests/test_15_segundos.txt | head
 0.000340517
 0.000678639
 ```
+
+
+## Tests:
+Los tests provistos originalmente, con sus respectivos .out,
+se encuentra en ./tests_catedra_original.
+
+La carpeta ./tests contiene los tests de la cátedra, pero
+con los .out de nuestro programa.
+
+Para correr los tests, se provee un archivo de Jupyter notebook
+con las funciones que usamos para create tests, correr los tests
+provistos y graficar resultados.
+
+Los tests en sí consisten de 2 archivos:
+- helper.py, encargado de generar tests y correr los de la cátedra.
+- tester.py, encargado de correr los tests que generamos.
+
+El código que proveen es usado directa e indirectamente en
+la notebook.
