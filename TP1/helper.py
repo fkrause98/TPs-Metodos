@@ -128,9 +128,6 @@ def time_each():
 def run_each():
     tests_path = os.getcwd() + "/tests_catedra_original"
     files = os.listdir(tests_path)
-    files.remove('tp1.pdf')
-    files.remove('README.txt')
-    files.remove('test_nuestro.txt')
     files = [file for file in files if file.endswith(".txt")]
     for file in files:
         print(f"Testing {str(file)}...")
