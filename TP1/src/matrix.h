@@ -8,14 +8,22 @@
 #include <vector>
 using namespace std;
 template <typename Num>
+//Función auxiliar
+//para comparar 2 números, sean
+//enteros o punto flotante.
 bool is_zero(Num x){
    double epsilon = 1e-4;
    return (abs(x) < epsilon);
 }
 template <typename Num>
 struct Matrix {
+    // Tamaño de la matriz.
     int N;
+    // Cantidad de links.
     int M;
+    // Diccionario con los valores.
+    // Si Matrix representa una matriz M,
+    // values[i][j] es M_ij
     unordered_map<int, unordered_map<int, Num>> values;
     Matrix(){
         this->values = {};
@@ -29,6 +37,7 @@ struct Matrix {
     unordered_map<int, Num> operator[](int row){
         return values[row];
     }
+    // Setea un valor en la matriz.
     void set(int i, int j, Num value){
         if(i < this->N && j < this->N){
             if(!is_zero(value)){
@@ -38,12 +47,15 @@ struct Matrix {
             }
         }
     }
+    //Intercambia filas row1 y row2 en la
+    //matriz.
     void swap_rows(int row1, int row2){
        unordered_map<int, Num> tmp;
        tmp = values[row1];
        values[row1] = values[row2];
        values[row2] = tmp;
     }
+    //Aplica gauss sobre la matriz
     void gaussian_form() {
       auto n = this->N;
       for (int i = 0; i < (n - 1); i++) {
@@ -71,6 +83,8 @@ struct Matrix {
         }
       }
     }
+    //Aplica eliminación gaussiana de forma
+    //superior.
     void gaussian_upper_form() {
       auto n = this->N;
       for (int i = n-2; i > 0; i--) {
@@ -109,12 +123,15 @@ struct Matrix {
       }
       cout << "-----------" << endl;
     }
+    //Calcua los cj a partir
+    //de una columna.
     Num get_cj(int column){
         Num cj = 0;
         for(int i = 0; i < this->N; i++)
             cj += this->values[i][column];
         return cj;
     }
+    //Multiplicar por un escalar.
     void times_scalar(Num scalar) {
         for (auto it_row = this->values.begin(); it_row != this->values.end();
              ++it_row) {
@@ -127,6 +144,7 @@ struct Matrix {
             }
         }
     }
+    //Extender una matriz con unos.
     void extend_with_ones() {
         this->N = (this->N) + 1;
         int n = this->N;
