@@ -158,3 +158,4 @@ Matrix<double> file_to_W_matrix(string path);
 Matrix<double> W_to_D_matrix(Matrix <double> W);
 template <typename Num>
 Matrix<Num> Matrix_mul_diag(Matrix<Num> A, Matrix<Num> diagonal);
+vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V);

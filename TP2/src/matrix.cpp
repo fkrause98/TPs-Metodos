@@ -133,3 +133,62 @@ vector<double> normalize(vector<double> solution) {
     }
     return solution;
 }
+
+vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V) {
+    vector<double> result;
+    for(int i= 0; i < M.N ; i++) {
+        double sum = 0;
+        for(int j=0; j <M.N; j++) {
+            sum += (M[i][j] * V[j]);
+        }
+        result.push_back(sum);
+    }
+    return result;
+}
+
+vector<double> select_column(Matrix<double> &M) {
+    vector<double> res;
+    for (int i = 0; i < M.N ; i++) {
+        res.push_back(M[i][1]);
+    }
+    return res;
+}
+
+
+vector<double> power_method(Matrix<double> M, int k) {
+    vector<double> x = select_column(M);
+    for (int i=0; i < k ; i++) {
+        x = normalize(mul_matrix_vector(M, x));
+    }
+    return x;
+}
+
+double eigen_value(Matrix<double> M, vector<double> x) {
+    vector<double> res = mul_matrix_vector(M, x);
+    return (res[0] / x[0]);
+}
+
+vector<double> sqrt_vector(vector<double> V) {
+    for(int i = 0; i < V.size(); i++){
+        V[i] = sqrt(V[i]);
+    }
+    return V;
+}
+
+Matrix<double> create_v_vt(vector<double> V) {
+    Matrix<double> v_vt(V.size(),V.size()*V.size());
+    for(int i = 0; i < v_vt.N; i++){
+        for(int j = 0; j < v_vt.N; j++){
+            v_vt.set(i,j,V[i]*V[j]);
+        }
+    }
+    return v_vt;
+}
+
+Matrix<double> create_householder(vector<double> V) {
+    Matrix<double> H = create_v_vt(V);
+    H = p_times_Matrix(H, 2);
+    Matrix<double> id = identity(V.size());
+    H = sub(id, H);
+    return H;
+}
