@@ -39,9 +39,10 @@ def create_test(path, p):
     assert(os.path.exists(path))
     assert(p in [.3, .5, .7, .9])
     file_name = path.split('/')[-1]
+    print(file_name)
     [n, sparsiness, number, name] = file_name[:-4].split('_')
     m = int(linecache.getline(path, 2))
-    assert(n in ['50', '100', '200', '300', '500', '1000'])
+    assert(n in ['50', '100', '200', '300', '500', '1000', '3000'])
     assert(int(number) in range(10))
     # assert(check_m_is_right(m, int(n), int(sparsiness)))
     return OurTest(path, int(n), m, int(sparsiness), int(number), p, name)

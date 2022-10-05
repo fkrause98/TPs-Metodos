@@ -106,6 +106,13 @@ class Test:
         Ax = np.matmul(A, our_solution)
         return abs(Ax-our_solution)
 
+    def diff_catedra_with_A_times_x(self):
+        p, catedra_solution = self.solution_file_original()
+        catedra_solution = np.array(catedra_solution)
+        A = self.get_A(p)
+        Ax = np.matmul(A, catedra_solution)
+        return abs(Ax-catedra_solution)
+
 def read_test(test_path: str, test_path_original) -> Test:
     with open(test_path) as test:
         lines = test.readlines()
@@ -144,10 +151,10 @@ def sparse_tests_extra_links():
             for sparse_percentage in sparsiness_list:
                 m = ((100-sparse_percentage)*(n**2))//100
                 matrix = [random_ij(n) for _ in range(m)]
-                write_test(n, len(matrix), matrix, sparse_percentage, x, "sparse_30")
+                write_test(n, len(matrix), matrix, sparse_percentage, x, "sparse30")
                 for y in range(30*n):
                     matrix.append(random_link_to_important_page(n, 15))
-                write_test(n, len(matrix), matrix, sparse_percentage, x, "sparseextra_30")
+                write_test(n, len(matrix), matrix, sparse_percentage, x, "sparseextra30")
 
 # def sparse_tests():
 #     random.seed()
@@ -179,9 +186,9 @@ def write_test(n, m, matrix, sparse_percentage, test_number, name=""):
         test_file.write(str(n) + '\n')
         test_file.write(str(m) + '\n')
         for (i, j) in matrix:
-            test_file.write(f'{str(i)} {str(j)} \n')
+            test_file.write(f'{str(j)} {str(i)} \n')
     test = read_test(test_file_path, "")
-    assert matrix == test.links
+    assert matrix == [(j,i) for (i,j) in test.links]
     assert n == int(test.n)
     assert m == int(test.m)
     assert test_file_path == test.test_path
@@ -196,10 +203,10 @@ def random_ij(n):
     return (i, j)
 
 def random_link_to_important_page(n, important_pages_num):
-    (i, j) = (random.randint(1, important_pages_num), random.randint(1, n))
+    (i, j) = (random.randint(1, important_pages_num), random.randint(important_pages_num+1, n))
     # Try again just in case.
     while i == j:
-        (i, j) = (random.randint(1, important_pages_num), random.randint(1, n))
+        (i, j) = (random.randint(1, important_pages_num), random.randint(important_pages_num+1, n))
     return (i, j)
 
 def read_test_out(path):
@@ -221,3 +228,30 @@ def diff_each_with_Ax():
         test = read_test("./tests/" + file, "./tests_catedra_original/" + file)
         test.diff()
     return None
+
+def random_ij_few(f_i, l_i, f_j, l_j):
+    (i, j) = (random.randint(f_i, l_i), random.randint(f_j, l_j))
+    # Try again just in case.
+    while i == j:
+        (i, j) = (random.randint(f_i, l_i), random.randint(f_j, l_j))
+    return (i, j)
+
+def few_important_tests():
+    random.seed()
+    n_list = [1000]
+    sparsiness_list = [99]
+    for x in range(5):
+        for n in n_list:
+            for sparse_percentage in sparsiness_list:
+                m = (((100-sparse_percentage)*(n**2))//100)-150
+                matrix_1 = [random_ij_few(0,n,15,n) for _ in range(m)]
+                matrix_2 = matrix_1
+                for _ in range(150):
+                    matrix_1.append(random_ij_few(0,n,0,15))
+                write_test(n, len(matrix_1), matrix_1, sparse_percentage, x, "fewimportant")
+                for y in range(13000):
+                    matrix_2.append(random_ij_few(0,15,15,n))
+                for i in [3, 5, 7]:
+                    for j in [1,2,8,9,10,11,12,13]:
+                        matrix_2.append((i, j))
+                write_test(n, len(matrix_2), matrix_2, sparse_percentage, x, "fewimportantextra")
