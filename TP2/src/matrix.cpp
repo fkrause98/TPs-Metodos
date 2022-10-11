@@ -5,6 +5,7 @@
 #include <utility>
 #include "matrix.h"
 #include <cmath>
+#include <time.h>
 
 Matrix<double> file_to_matrix(string path){
         
@@ -34,15 +35,11 @@ Matrix<double> file_to_matrix(string path){
                 int split = fila.find(" ");
                 string fst = fila.substr(0, split);
                 fila = fila.substr(split+1);
-                cout << "fila.substr" << endl;
-                cout << fila << endl;
                 if(fst != "0"){
                     A.set(i, j, stod(fst));
                     M++;
                 }
             }
-            cout << "La fila" << endl;
-            cout << fila << endl;
             if(fila != "0"){
                 A.set(i, j, stod(fila));
                 M++;
@@ -149,6 +146,18 @@ vector<double> normalize(vector<double> solution) {
     return solution;
 }
 
+vector<double> norm_2(vector<double> solution) {
+
+    double sum = 0;
+    for(int i = 0; i<solution.size(); i++){
+        sum += pow((solution[i]),2);
+    }
+    for(int i = 0; i<solution.size(); i++){
+        solution[i] = solution[i]/(sqrt(sum));
+    }
+    return solution;
+}
+
 vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V) {
     vector<double> result;
     for(int i= 0; i < M.N ; i++) {
@@ -164,16 +173,21 @@ vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V) {
 vector<double> select_column(Matrix<double> &M) {
     vector<double> res;
     for (int i = 0; i < M.N ; i++) {
-        res.push_back(M[i][1]);
+        res.push_back(M[i][0]);
     }
     return res;
 }
 
 
 vector<double> power_method(Matrix<double> M, int k) {
-    vector<double> x = select_column(M);
+    //vector<double> x = select_column(M);
+    srand (time(NULL));
+    vector<double> x = {};
+    for (int i=0; i < M.N; i++){
+        x.push_back(rand());
+    }
     for (int i=0; i < k ; i++) {
-        x = normalize(mul_matrix_vector(M, x));
+        x = norm_2(mul_matrix_vector(M, x));
     }
     return x;
 }
@@ -181,7 +195,7 @@ vector<double> power_method(Matrix<double> M, int k) {
 double eigen_value(Matrix<double> M, vector<double> x) {
     vector<double> res = mul_matrix_vector(M, x);
     int i = 0;
-    while(x[i] == 0)
+    while(x[i] < 1e-4)
         i++;
     return (res[i] / x[i]);
 }
@@ -210,11 +224,21 @@ Matrix<double> next_matrix(Matrix<double> A, vector<double> V, double lambda) {
     return B;
 }
 
+vector<double> clear_vec(vector<double> V) {
+    for(int i = 0; i < V.size(); i++){
+        if(abs(V[i]) < 1e-4){
+            V[i] = 0;
+        }
+    }
+    return V;
+}
+
 pair<vector<double>, vector<vector<double>>> get_eigen(Matrix<double> A, int iteraciones, double tolerancia){
     vector<vector<double> > eigenvectors = {};
     vector<double> eigenvalues = {};
     for(int i = 0; i < A.N; i++){
         vector<double> eigenvec = power_method(A, iteraciones);
+        eigenvec = clear_vec(eigenvec);
         eigenvectors.push_back(eigenvec);
         double eigenval = eigen_value(A, eigenvec);
         eigenvalues.push_back(eigenval);

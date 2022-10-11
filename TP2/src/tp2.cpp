@@ -43,6 +43,20 @@ int main(int argc, char *argv[]) {
     }
     cout << "<-- autovectores[2] de A" << endl;
 
+    /*
+    vector<double> prueba = {-3280,3280,0};
+
+    for(int i = 0; i < prueba.size(); i++){
+        cout << prueba[i] << " ";
+    }
+    cout << "<-- prueba normalizar" << endl;
+
+    prueba = norm_2(prueba);
+
+    for(int i = 0; i < prueba.size(); i++){
+        cout << prueba[i] << " ";
+    }
+    cout << "<-- prueba normalizar" << endl; */
 
     /*
     Matrix<double> M(4, 10);
