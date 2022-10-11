@@ -2,41 +2,56 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <utility>
 #include "matrix.h"
-#include<cmath>
+#include <cmath>
 
-Matrix<double> file_to_W_matrix(string path){
+Matrix<double> file_to_matrix(string path){
+        
         // Leer el archivo como un stream
-        ifstream stream(path);
-       // Usar line de buffer
-        string line;
+        ifstream stream1(path);
+        // Usar line de buffer
+        string line1;
 
-        // La primera línea es n,
-        // el nro. de páginas.
-        getline(stream, line);
-        int n = stoi(line);
+        // Obtener cantidad de filas
+        int N = 0;
+        while(getline(stream1, line1))
+            N++;
+        int M = 0;
 
-        // La segunda línea es m, el número
-        // de links.
-        getline(stream, line);
-        int m = stoi(line);
+        // Inicializar matriz vacia.
+        Matrix<double> A(N, M);
 
-        //Metemos los i,j en la matriz
-        //Si recibimos un i,j, termina
-        //siendo un 1 en la posición j-1,i-1 de 
-        //la matriz W.
-        Matrix<double> W(n, m);
-        for(int k = 1; k <= m; k++){
-            getline(stream, line);
-            int split = line.find(" ");
-            string fst = line.substr(0, split);
-            string snd = line.substr(split);
-            int i = stod(fst)-1;
-            int j = stod(snd)-1;
-            W.set(j, i, 1);
+        ifstream stream2(path);
+        string line2;
+        //Metemos los valores no nulos en values.
+        
+        for(int i = 0; i < N; i++){
+            getline(stream2, line2);
+            string fila = line2;
+            int j;
+            for(j = 0; j < N-1; j++){
+                int split = fila.find(" ");
+                string fst = fila.substr(0, split);
+                fila = fila.substr(split+1);
+                cout << "fila.substr" << endl;
+                cout << fila << endl;
+                if(fst != "0"){
+                    A.set(i, j, stod(fst));
+                    M++;
+                }
+            }
+            cout << "La fila" << endl;
+            cout << fila << endl;
+            if(fila != "0"){
+                A.set(i, j, stod(fila));
+                M++;
+            }
         }
-        return W;
+        A.M = M;  
+        return A;
 }
+
 
 // Esto toma la matriz W del enunciado
 // y la transforma en la matriz D.
@@ -165,7 +180,10 @@ vector<double> power_method(Matrix<double> M, int k) {
 
 double eigen_value(Matrix<double> M, vector<double> x) {
     vector<double> res = mul_matrix_vector(M, x);
-    return (res[0] / x[0]);
+    int i = 0;
+    while(x[i] == 0)
+        i++;
+    return (res[i] / x[i]);
 }
 
 vector<double> sqrt_vector(vector<double> V) {
@@ -185,10 +203,23 @@ Matrix<double> create_v_vt(vector<double> V) {
     return v_vt;
 }
 
-Matrix<double> create_householder(vector<double> V) {
-    Matrix<double> H = create_v_vt(V);
-    H = p_times_Matrix(H, 2);
-    Matrix<double> id = identity(V.size());
-    H = sub(id, H);
-    return H;
+Matrix<double> next_matrix(Matrix<double> A, vector<double> V, double lambda) {
+    Matrix<double> B = create_v_vt(V);
+    B = p_times_Matrix(B, lambda);
+    B = sub(A, B);
+    return B;
+}
+
+pair<vector<double>, vector<vector<double>>> get_eigen(Matrix<double> A, int iteraciones, double tolerancia){
+    vector<vector<double> > eigenvectors = {};
+    vector<double> eigenvalues = {};
+    for(int i = 0; i < A.N; i++){
+        vector<double> eigenvec = power_method(A, iteraciones);
+        eigenvectors.push_back(eigenvec);
+        double eigenval = eigen_value(A, eigenvec);
+        eigenvalues.push_back(eigenval);
+        A = next_matrix(A, eigenvec, eigenval);
+    }
+    pair<vector<double>, vector<vector<double>>> par = make_pair(eigenvalues,eigenvectors);
+    return par;
 }

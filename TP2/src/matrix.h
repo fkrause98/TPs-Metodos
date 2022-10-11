@@ -6,6 +6,7 @@
 #include <ostream>
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 template <typename Num>
 //Función auxiliar
@@ -43,7 +44,8 @@ struct Matrix {
             if(!is_zero(value)){
                 this->values[i][j] = value;
             } else {
-                this->values[i][j] = 0;
+                this->values[i].erase(j);
+                this->M -= 1;
             }
         }
     }
@@ -113,7 +115,7 @@ struct Matrix {
       }
     }
     void print() {
-      cout << "-----------" << endl;
+      cout << "-------------------------------------" << endl;
       for (int i = 0; i < this->N; i++) {
         for (int j = 0; j < this->N; j++) {
           cout << " " << this->values[i][j] << " ";
@@ -121,7 +123,7 @@ struct Matrix {
         }
         cout << endl;
       }
-      cout << "-----------" << endl;
+      cout << "-------------------------------------" << endl;
     }
     //Calcua los cj a partir
     //de una columna.
@@ -154,7 +156,7 @@ struct Matrix {
         } 
     }
 };
-Matrix<double> file_to_W_matrix(string path);
+Matrix<double> file_to_matrix(string path);
 Matrix<double> W_to_D_matrix(Matrix <double> W);
 template <typename Num>
 Matrix<Num> Matrix_mul_diag(Matrix<Num> A, Matrix<Num> diagonal);
