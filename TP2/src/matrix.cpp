@@ -12,14 +12,16 @@
 void write_solution(eigenpair pair, string input_path){
     auto eigen_values = pair.first;
     auto eigen_vectors = pair.second;
-    ofstream values_file(input_path + "_eigenvalues.txt");
+    int split = input_path.find(".");
+    string name = input_path.substr(0, split);
+    ofstream values_file(name + "_eigenvalues.txt");
     for(int i = 0; i < eigen_values.size(); i++){
         values_file << eigen_values[i] << " ";
     }
     values_file << "\n";
     values_file.close();
 
-    ofstream vectors_file(input_path + "_eigenvectors.txt");
+    ofstream vectors_file(name + "_eigenvectors.txt");
     for(int i = 0; i < eigen_vectors.size(); i++){
         for(int j = 0; j < eigen_vectors.size(); j++){
             vectors_file << eigen_vectors[j][i] << " ";
@@ -154,9 +156,9 @@ vector<double> get_solution(Matrix<double> A){
     }
     return result;
 }
+
 // Normalizar el vector dado por parámetro.
 vector<double> normalize(vector<double> solution, double norm) {
-
     for(int i = 0; i<solution.size(); i++){
         solution[i] = solution[i]/norm;
     }
@@ -164,7 +166,6 @@ vector<double> normalize(vector<double> solution, double norm) {
 }
 
 double norm_2(vector<double> solution) {
-
     double sum = 0;
     for(int i = 0; i<solution.size(); i++){
         sum += pow((solution[i]),2);
@@ -212,7 +213,7 @@ vector<double> power_method(Matrix<double> M, int k, double tolerancia) {
         x = normalize(x, norm_2(x));
         if(norm_2(sub_vec(last_x, x)) < tolerancia){
             cout << "iteracion " << i << endl;
-            break;
+            i = k;
         }
         last_x = x;
     }
@@ -261,36 +262,39 @@ vector<double> clear_vec(vector<double> V) {
 }
 
 bool is_zero_matrix(Matrix<double> A) {
-  for (auto it_row = A.values.begin(); it_row != A.values.end(); ++it_row) {
-    int index_row = it_row->first;
-    // it_row == iterador a columnas.
-    for (auto it_column = it_row->second.begin();
-         it_column != it_row->second.end(); ++it_column) {
-        int index_column = it_column->first;
-      if(!is_zero(A[index_row][index_column])){
-          return false;
-      }
+    for (auto it_row = A.values.begin(); it_row != A.values.end(); ++it_row) {
+        int index_row = it_row->first;
+        // it_row == iterador a columnas.
+        for (auto it_column = it_row->second.begin(); it_column != it_row->second.end(); ++it_column) {
+            int index_column = it_column->first;
+            if(!is_zero(A[index_row][index_column])){
+                return false;
+            }
+        }
     }
-  }
-  return true;
+    return true;
 }
+
 eigenpair get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
-  vector<vector<double>> eigenvectors = {};
-  vector<double> eigenvalues = {};
-  for (int i = 0; i < A.N; i++) {
-      if(is_zero_matrix(A)){
-          eigenvalues.push_back(0);
-          eigenvectors.push_back(vector<double>(A.N, 0));
-          break;
-      }
-    vector<double> eigenvec = power_method(A, iteraciones, tolerancia);
-    eigenvec = clear_vec(eigenvec);
-    eigenvectors.push_back(eigenvec);
-    double eigenval = eigen_value(A, eigenvec);
-    eigenvalues.push_back(eigenval);
-    A = next_matrix(A, eigenvec, eigenval);
-    A.print();
-  }
-  eigenpair solution = make_pair(eigenvalues, eigenvectors);
-  return solution;
+    vector<vector<double>> eigenvectors = {};
+    vector<double> eigenvalues = {};
+    for (int i = 0; i < A.N; i++) {
+        vector<double> eigenvec = power_method(A, iteraciones, tolerancia);
+        eigenvec = clear_vec(eigenvec);
+        eigenvectors.push_back(eigenvec);
+        double eigenval = eigen_value(A, eigenvec);
+        eigenvalues.push_back(eigenval);
+        A = next_matrix(A, eigenvec, eigenval);
+        //A.print();
+        if(is_zero_matrix(A)){
+            int k = A.N - eigenvalues.size();
+            for(int j = 0; j < k; j++){
+                eigenvalues.push_back(0);
+                eigenvectors.push_back(vector<double>(A.N, 1));
+            }
+            i = A.N;
+        }
+    }
+    eigenpair solution = make_pair(eigenvalues, eigenvectors);
+    return solution;
 }
