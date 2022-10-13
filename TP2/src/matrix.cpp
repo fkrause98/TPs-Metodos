@@ -7,6 +7,27 @@
 #include <cmath>
 #include <time.h>
 
+#define eigenpair pair<vector<double>, vector<vector<double>>>
+
+void write_solution(eigenpair pair, string input_path){
+    auto eigen_values = pair.first;
+    auto eigen_vectors = pair.second;
+    ofstream values_file(input_path + "_eigenvalues.txt");
+    for(int i = 0; i < eigen_values.size(); i++){
+        values_file << eigen_values[i] << " ";
+    }
+    values_file << "\n";
+    values_file.close();
+
+    ofstream vectors_file(input_path + "_eigenvectors.txt");
+    for(int i = 0; i < eigen_vectors.size(); i++){
+        for(int j = 0; j < eigen_vectors.size(); j++){
+            vectors_file << eigen_vectors[j][i] << " ";
+        }
+        vectors_file << "\n";
+    }
+    vectors_file.close();
+}
 Matrix<double> file_to_matrix(string path){
         
         // Leer el archivo como un stream
@@ -134,30 +155,22 @@ vector<double> get_solution(Matrix<double> A){
     return result;
 }
 // Normalizar el vector dado por parámetro.
-vector<double> normalize(vector<double> solution) {
+vector<double> normalize(vector<double> solution, double norm) {
 
-    double sum = 0;
     for(int i = 0; i<solution.size(); i++){
-        sum += solution[i];
-    }
-    for(int i = 0; i<solution.size(); i++){
-        solution[i] = solution[i]/sum;
+        solution[i] = solution[i]/norm;
     }
     return solution;
 }
 
-vector<double> norm_2(vector<double> solution) {
+double norm_2(vector<double> solution) {
 
     double sum = 0;
     for(int i = 0; i<solution.size(); i++){
         sum += pow((solution[i]),2);
     }
-    for(int i = 0; i<solution.size(); i++){
-        solution[i] = solution[i]/(sqrt(sum));
-    }
-    return solution;
+    return sqrt(sum);
 }
-
 vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V) {
     vector<double> result;
     for(int i= 0; i < M.N ; i++) {
@@ -179,15 +192,29 @@ vector<double> select_column(Matrix<double> &M) {
 }
 
 
-vector<double> power_method(Matrix<double> M, int k) {
-    //vector<double> x = select_column(M);
+vector<double> sub_vec(vector<double> &x, vector<double> &y){
+    vector<double> sub(x.size(), 0);
+    for(int i = 0; i < x.size(); i++){
+        sub[i] = x[i]-y[i];
+    }
+    return sub;
+}
+
+vector<double> power_method(Matrix<double> M, int k, double tolerancia) {
     srand (time(NULL));
     vector<double> x = {};
     for (int i=0; i < M.N; i++){
-        x.push_back(rand());
+        x.push_back(rand()+1);
     }
+    vector<double> last_x = x;
     for (int i=0; i < k ; i++) {
-        x = norm_2(mul_matrix_vector(M, x));
+        x = mul_matrix_vector(M, x);
+        x = normalize(x, norm_2(x));
+        if(norm_2(sub_vec(last_x, x)) < tolerancia){
+            cout << "iteracion " << i << endl;
+            break;
+        }
+        last_x = x;
     }
     return x;
 }
@@ -233,17 +260,37 @@ vector<double> clear_vec(vector<double> V) {
     return V;
 }
 
-pair<vector<double>, vector<vector<double>>> get_eigen(Matrix<double> A, int iteraciones, double tolerancia){
-    vector<vector<double> > eigenvectors = {};
-    vector<double> eigenvalues = {};
-    for(int i = 0; i < A.N; i++){
-        vector<double> eigenvec = power_method(A, iteraciones);
-        eigenvec = clear_vec(eigenvec);
-        eigenvectors.push_back(eigenvec);
-        double eigenval = eigen_value(A, eigenvec);
-        eigenvalues.push_back(eigenval);
-        A = next_matrix(A, eigenvec, eigenval);
+bool is_zero_matrix(Matrix<double> A) {
+  for (auto it_row = A.values.begin(); it_row != A.values.end(); ++it_row) {
+    int index_row = it_row->first;
+    // it_row == iterador a columnas.
+    for (auto it_column = it_row->second.begin();
+         it_column != it_row->second.end(); ++it_column) {
+        int index_column = it_column->first;
+      if(!is_zero(A[index_row][index_column])){
+          return false;
+      }
     }
-    pair<vector<double>, vector<vector<double>>> par = make_pair(eigenvalues,eigenvectors);
-    return par;
+  }
+  return true;
+}
+eigenpair get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
+  vector<vector<double>> eigenvectors = {};
+  vector<double> eigenvalues = {};
+  for (int i = 0; i < A.N; i++) {
+      if(is_zero_matrix(A)){
+          eigenvalues.push_back(0);
+          eigenvectors.push_back(vector<double>(A.N, 0));
+          break;
+      }
+    vector<double> eigenvec = power_method(A, iteraciones, tolerancia);
+    eigenvec = clear_vec(eigenvec);
+    eigenvectors.push_back(eigenvec);
+    double eigenval = eigen_value(A, eigenvec);
+    eigenvalues.push_back(eigenval);
+    A = next_matrix(A, eigenvec, eigenval);
+    A.print();
+  }
+  eigenpair solution = make_pair(eigenvalues, eigenvectors);
+  return solution;
 }

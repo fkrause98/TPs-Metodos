@@ -28,21 +28,14 @@ int main(int argc, char *argv[]) {
     }
     cout << "<-- autovalores de A" << endl;
 
-    for(int i = 0; i < autovectores[0].size(); i++){
-        cout << autovectores[0][i] << " ";
+    for(int i = 0; i < autovectores.size(); i++){
+        for(int j = 0; j < autovectores[i].size(); j++){
+            cout << autovectores[i][j] << " ";
+        }
+        cout << "<-- autovectores[" << i << "] de A" << endl;
     }
-    cout << "<-- autovectores[0] de A" << endl;
 
-    for(int i = 0; i < autovectores[1].size(); i++){
-        cout << autovectores[1][i] << " ";
-    }
-    cout << "<-- autovectores[1] de A" << endl;
-
-    for(int i = 0; i < autovectores[2].size(); i++){
-        cout << autovectores[2][i] << " ";
-    }
-    cout << "<-- autovectores[2] de A" << endl;
-
+    write_solution(result, file_path);
     /*
     vector<double> prueba = {-3280,3280,0};
 
