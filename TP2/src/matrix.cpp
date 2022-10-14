@@ -6,10 +6,14 @@
 #include "matrix.h"
 #include <cmath>
 #include <time.h>
+#include <filesystem>
 
-#define eigenpair pair<vector<double>, vector<vector<double>>>
+#define eigenpairs pair<vector<double>, vector<vector<double>>>
 
-void write_solution(eigenpair pair, string input_path){
+#define eigenpair pair<double, vector<double>>
+
+void write_solution(eigenpairs pair, string input_path){
+    input_path = filesystem::absolute(input_path);
     auto eigen_values = pair.first;
     auto eigen_vectors = pair.second;
     int split = input_path.find(".");
@@ -29,6 +33,11 @@ void write_solution(eigenpair pair, string input_path){
         vectors_file << "\n";
     }
     vectors_file.close();
+}
+void write_solution_karate(eigenpair pair, string input_path){
+    vector<double> eigenval = {pair.first};
+    vector<vector<double>> eigenvec = {pair.second};
+    write_solution(make_pair(eigenval, eigenvec), input_path);
 }
 Matrix<double> file_to_matrix(string path){
         
@@ -275,7 +284,7 @@ bool is_zero_matrix(Matrix<double> A) {
     return true;
 }
 
-eigenpair get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
+eigenpairs get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
     vector<vector<double>> eigenvectors = {};
     vector<double> eigenvalues = {};
     for (int i = 0; i < A.N; i++) {
@@ -295,6 +304,50 @@ eigenpair get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
             i = A.N;
         }
     }
-    eigenpair solution = make_pair(eigenvalues, eigenvectors);
+    eigenpairs solution = make_pair(eigenvalues, eigenvectors);
     return solution;
 }
+
+vector<double> karate_centrality(Matrix<double> AdjMtrx, int iterations, double tolerance){
+    vector<double> eigenvector = power_method(AdjMtrx, iterations, tolerance);
+    double eigenvalue = eigen_value(AdjMtrx, eigenvector);
+    vector<double> adj_times_x = mul_matrix_vector(AdjMtrx, eigenvector);
+    for(int i = 0; i < adj_times_x.size(); i++){
+        adj_times_x[i] = (adj_times_x[i] / eigenvalue);
+    }
+    return normalize(adj_times_x, norm_2(adj_times_x));
+}
+
+Matrix<double> A_to_D_matrix(Matrix <double> A){
+    Matrix<double> D(A.N, A.N);
+    for(int i = 0; i < A.N; i++){
+        auto cj = A.get_cj(i);
+        if(!is_zero(cj)){
+            D.set(i, i, cj);
+        }
+    }
+    return D;
+}
+
+Matrix<double> A_to_Laplacian(Matrix <double> A){
+    Matrix<double> D = A_to_D_matrix(A);
+    Matrix<double> L = sub(D,A);
+    return L;
+}
+
+
+/*
+auto compare_by_centrality =
+    [](const pair<double,int> &left, const pair<double,int> &right) {
+        return left.first < right.first;
+    };
+
+vector<pair<double, int>> sort_by_centrality(vector<double> nodes){
+    vector<pair<double, int>> nodes_with_index = {};
+    for(int i = 0; i < nodes.size(); i++){
+       nodes_with_index.push_back(make_pair(nodes[i], i+1));
+    }
+    sort(nodes_with_index.begin(), nodes_with_index.end(), compare_by_centrality);
+    return nodes_with_index;
+}
+*/
