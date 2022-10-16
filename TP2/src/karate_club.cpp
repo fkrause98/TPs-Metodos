@@ -3,6 +3,44 @@
 using namespace std;
 using std::ofstream;
 
+
+vector<double> karate =
+{
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+1,
+0,
+0,
+0,
+0,
+1,
+1,
+0,
+0,
+1,
+0,
+1,
+0,
+1,
+1,
+1,
+1,
+1,
+1,
+1,
+1,
+1,
+1,
+1,
+1
+};
 int main(int argc, char *argv[]) {
 
     if(argc != 4){
@@ -25,7 +63,7 @@ int main(int argc, char *argv[]) {
     auto res = get_eigen(L, iteraciones, tolerancia);
     write_solution(res, file_path);
     /*
-    auto result = karate_centrality(A, iteraciones, tolerancia);
+    auto result = karate_centrality_with_major_eigen_val(A, iteraciones, tolerancia);
 
     auto sorted = sort_by_centrality(result);
     for(int i = 0; i < sorted.size(); i++){

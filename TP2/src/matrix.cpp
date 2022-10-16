@@ -7,6 +7,7 @@
 #include <cmath>
 #include <time.h>
 #include <filesystem>
+#include <algorithm>
 
 #define eigenpairs pair<vector<double>, vector<vector<double>>>
 
@@ -181,7 +182,7 @@ double norm_2(vector<double> solution) {
     }
     return sqrt(sum);
 }
-vector<double> mul_matrix_vector(Matrix<double> M, vector<double> V) {
+vector<double> mul_matrix_vector(Matrix<double>& M, vector<double>& V) {
     vector<double> result;
     for(int i= 0; i < M.N ; i++) {
         double sum = 0;
@@ -308,7 +309,8 @@ eigenpairs get_eigen(Matrix<double> A, int iteraciones, double tolerancia) {
     return solution;
 }
 
-vector<double> karate_centrality(Matrix<double> AdjMtrx, int iterations, double tolerance){
+vector<double> karate_centrality_with_major_eigen_val
+(Matrix<double> AdjMtrx, int iterations, double tolerance){
     vector<double> eigenvector = power_method(AdjMtrx, iterations, tolerance);
     double eigenvalue = eigen_value(AdjMtrx, eigenvector);
     vector<double> adj_times_x = mul_matrix_vector(AdjMtrx, eigenvector);
@@ -335,7 +337,80 @@ Matrix<double> A_to_Laplacian(Matrix <double> A){
     return L;
 }
 
+double mean(vector<double> x){
+    double sum = 0;
+    for(double x_i : x){
+       sum += x_i;
+    }
+    return sum/x.size();
+}
 
+double correlation(vector<double> x, vector<double> y){
+    double mean_x = mean(x);
+    double mean_y = mean(y);
+    double up = 0, low_x = 0, low_y = 0;
+    for(int i = 0; i < x.size(); i++){
+        up += (x[i]-mean_x)*(y[i]-mean_y);
+        low_x += pow((x[i]-mean_x), 2);
+        low_y += pow((y[i]-mean_y), 2);
+    }
+    double numerator = (sqrt(low_x))*(sqrt(low_y));
+    return up/numerator;
+}
+eigenpair best_predictor(Matrix<double> L, vector<double> groups, int iteraciones, double tolerancia){
+    eigenpairs eigens = get_eigen(L, iteraciones, tolerancia);
+    int best = 0;
+    double actual_corr = 0;
+    for(int i = 0; i < eigens.second.size(); i++){
+        if(actual_corr < abs(correlation(eigens.second[i], groups))){
+            best = i;
+            actual_corr = abs(correlation(eigens.second[i], groups));
+        }
+    }
+    return make_pair(eigens.first[best], eigens.second[best]);
+}
+eigenpairs filter_if_negative_eigenvalue(eigenpairs eigen){
+    vector<double> eigenvals = {};
+    vector<vector<double>> eigenvecs = {};
+    for(int i = 0; i < eigen.first.size(); i++){
+        if(eigen.first[i] > 0){
+            eigenvals.push_back(eigen.first[i]);
+            eigenvecs.push_back(eigen.second[i]);
+        }
+    }
+    return make_pair(eigenvals, eigenvecs);
+}
+eigenpair minor_eigenpair(Matrix<double> L, int iterations, double tolerance){
+    eigenpairs eigens = get_eigen(L, iterations, tolerance);
+    eigenpairs positive = filter_if_negative_eigenvalue(eigens);
+    int best = 0;
+    for(int i = 0; i < positive.first.size(); i++){
+        if(positive.first[i] < positive.first[best])
+           best = i;
+    }
+    return make_pair(positive.first[best], positive.second[best]);
+}
+
+vector<double> karate_centrality_with_minor_eigen_val
+(Matrix<double>& L, int iterations, double tolerance){
+    eigenpair minor = minor_eigenpair(L, iterations, tolerance);
+    vector<double> adj_times_x = mul_matrix_vector(L, minor.second);
+    for(int i = 0; i < adj_times_x.size(); i++){
+        adj_times_x[i] = (adj_times_x[i] / minor.first);
+    }
+    return normalize(adj_times_x, norm_2(adj_times_x));
+}
+vector<int> predict_groups(Matrix<double> A, int iterations, double tolerance){
+  Matrix<double> L = A_to_Laplacian(A);
+  vector<double> centrality = karate_centrality_with_minor_eigen_val(L, iterations, tolerance);
+  vector<double> predicted_group(centrality.size(), 0);
+  for(int i = 0; i < centrality.size(); i++){
+      if(centrality[i] > 0){
+         predicted_group[i] = 1;
+      }
+  }
+  return predicted_group;
+}
 /*
 auto compare_by_centrality =
     [](const pair<double,int> &left, const pair<double,int> &right) {
